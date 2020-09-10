@@ -6,6 +6,5 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="FileHelpers" Version="3.4.1" />
   </ItemGroup>
 </Project>

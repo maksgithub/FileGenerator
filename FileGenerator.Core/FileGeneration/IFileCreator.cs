@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FileGenerator.Core
+namespace FileGenerator.Core.FileGeneration
 {
     public interface IFileCreator
     {
