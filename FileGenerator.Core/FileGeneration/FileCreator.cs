@@ -1,49 +1,66 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
-using FileGenerator.Core.Helpers;
+using FileGenerator.Core.Common;
+using FileGenerator.Core.Progress;
 
 namespace FileGenerator.Core.FileGeneration
 {
     internal class FileCreator : IFileCreator
     {
-        private readonly IFileSystemHelper _fileSystemHelper;
+        private const int MaximumBufferCount = 1000;
+        private const int GenerateOperationsCount = 3;
 
-        public FileCreator(IFileSystemHelper fileSystemHelper)
+        public async Task<FileInfo> GenerateFileAsync(string path, long fileSize, int duplicatesCount,
+            IProgressReporter progressReporter)
         {
-            _fileSystemHelper = fileSystemHelper;
+            await FileSystemHelper.CreateEmptyFileAsync(path, true);
+            var writeItemsTask = WriteItemsToFileAsync(path, progressReporter, fileSize);
+            await Task.WhenAll(writeItemsTask);
+            return new FileInfo(path);
         }
 
-        [Benchmark]
-        public async Task GenerateFileAsync()
+        private async Task WriteItemsToFileAsync(string filePath, IProgressReporter progressReporter, long fileSize)
         {
-            await GenerateFileAsync(@"C:\Users\Max\Desktop\New folder (3)\File.txt", 1000, 0);
-        }
+            var token = new CancellationTokenSource();
+            var stack = new ConcurrentStack<char[]>();
 
-        public async Task GenerateFileAsync(string path, int linesCount, int duplicatesCount)
-        {
-            await _fileSystemHelper.CreateEmptyFileAsync(path, true);
-
-            //for (int i = 0; i < linesCount; i++)
-            //{
-            //    var item = $"{i}{Environment.NewLine}";
-            //    var engine = new FileHelperEngine<Orders>();
-            //    engine.AppendToFile(path, new Orders() { CustomerID = item });
-            //}
-
-            await WriteLineAsync(path);
-        }
-
-        private async Task WriteLineAsync(string path)
-        {
-            if (File.Exists(path))
+            var tasks = new List<Task>();
+            for (int i = 0; i < GenerateOperationsCount; i++)
             {
-                File.Delete(path);
+                tasks.Add(GenerateItemsAsync(stack, token.Token));
             }
 
+            await using var fileStream = new StreamWriter(filePath);
+            while (fileStream.BaseStream.Position < fileSize)
+            {
+                if(stack.TryPop(out var dataItem))
+                {
+                    fileStream.WriteLine(dataItem);
+                    progressReporter?.Report(fileStream.BaseStream.Position);
+                }
+            }
+            token.Cancel();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
 
-            await using Stream stream = new FileStream(path, FileMode.CreateNew);
-            await using Stream stream2 = new FileStream(path, FileMode.Open);
+        private Task GenerateItemsAsync(ConcurrentStack<char[]> concurrentStack, CancellationToken token)
+        {
+            return Task.Run(() =>
+            {
+                var generator = new DataItemGenerator();
+                while (!token.IsCancellationRequested)
+                {
+                    if (concurrentStack.Count < MaximumBufferCount)
+                    {
+                        concurrentStack.Push(generator.GenerateItem());
+                    }
+                }
+            }, token);
         }
     }
 }

@@ -1,9 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using FileGenerator.Core.Progress;
 
 namespace FileGenerator.Core.FileGeneration
 {
     public interface IFileCreator
     {
-        Task GenerateFileAsync(string path, int linesCount, int duplicatesCount);
+        Task<FileInfo> GenerateFileAsync(string path, long fileSize, int duplicatesCount,
+            IProgressReporter progressReporter = null);
     }
 }
