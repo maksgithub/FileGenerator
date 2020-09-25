@@ -62,7 +62,7 @@ namespace FileGenerator.Demo.Pages
             using var logger = FileGeneratorFactory.GetLogger($"Generate file {textSize}");
             var fileCreator = FileGeneratorFactory.GetFileCreator();
             using var progressReporter = new ProgressReporter(size);
-            var file = await fileCreator.GenerateFileAsync(path, size, 0, progressReporter);
+            var file = await fileCreator.GenerateFileAsync(path, size, progressReporter);
             Console.WriteLine($"\nFile generated {file.FullName}");
         }
 

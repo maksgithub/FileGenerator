@@ -15,7 +15,7 @@ namespace FileGenerator.Core.FileGeneration
         private const int MaximumBufferCount = 1000;
         private const int GenerateOperationsCount = 3;
 
-        public async Task<FileInfo> GenerateFileAsync(string path, long fileSize, int duplicatesCount,
+        public async Task<FileInfo> GenerateFileAsync(string path, long fileSize,
             IProgressReporter progressReporter)
         {
             await FileSystemHelper.CreateEmptyFileAsync(path, true);

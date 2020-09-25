@@ -26,7 +26,7 @@ namespace FileGenerator.Demo.Pages.GenerateFilePages
             _userData.Size = ToBytes(DefaultSizeMb);
         }
 
-        private static int ToBytes(int sizeInBytes)
+        private static long ToBytes(long sizeInBytes)
         {
             return sizeInBytes * 1024 * 1024;
         }

@@ -7,7 +7,7 @@ namespace FileGenerator.Core.FileGeneration
 {
     public interface IFileCreator
     {
-        Task<FileInfo> GenerateFileAsync(string path, long fileSize, int duplicatesCount,
+        Task<FileInfo> GenerateFileAsync(string path, long fileSize,
             IProgressReporter progressReporter = null);
     }
 }
