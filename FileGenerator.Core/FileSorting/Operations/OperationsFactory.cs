@@ -18,7 +18,7 @@ namespace FileGenerator.Core.FileSorting.Operations
 
         public OperationsFactory(ISettings settings, SortingPathsHelper pathsHelper)
         {
-            _sourceFileChannel = Channel.CreateBounded<string>(1000);
+            _sourceFileChannel = Channel.CreateUnbounded<string>();
             _chunksChannel = Channel.CreateUnbounded<FileInfo>();
             _settings = settings;
             _pathsHelper = pathsHelper;

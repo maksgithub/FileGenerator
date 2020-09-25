@@ -12,10 +12,19 @@ namespace FileGenerator.Demo.Pages
 {
     class MainPage : MenuPage
     {
+        private UserInputData _userData;
+
         public MainPage(Program program, UserInputData userData) : base("Start", program)
         {
+            _userData = userData;
             this.Menu.Add(new Option("Generate file", token => GenerateFileAsync(program, userData, token)));
-            this.Menu.Add(new Option($"Sort file", token => SortFileAsync(program, userData, token)));
+            Menu.Add(new Option($"Sort file", token => SortFileAsync(program, userData, token)));
+        }
+
+        public override Task Display(CancellationToken cancellationToken)
+        {
+            _userData.ResetDefaults();
+            return base.Display(cancellationToken);
         }
 
         private static async Task SortFileAsync(Program program, UserInputData userData, CancellationToken token)

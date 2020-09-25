@@ -11,20 +11,13 @@ namespace FileGenerator.Demo
     {
         public DemoProgram() : base("Main", breadcrumbHeader: true)
         {
-            var userData = new UserInputData(GetDefaultPath());
+            var userData = new UserInputData();
             AddPage(new MainPage(this, userData));
             AddPage(new ChoosePathPage(this, userData));
             AddPage(new ChooseFileSizePage(this, userData));
             AddPage(new ChooseSortFilePage(this, userData));
 
             SetPage<MainPage>();
-        }
-
-        private static string GetDefaultPath()
-        {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var defaultPath = Path.Combine(desktopPath, "FileGen", "File_initial.txt");
-            return defaultPath;
         }
     }
 }
